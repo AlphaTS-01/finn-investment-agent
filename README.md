@@ -22,8 +22,8 @@ Open http://127.0.0.1:8000/ for the responsive frontend, or http://127.0.0.1:800
 Buildless HTML/CSS/JavaScript in `frontend/`, served by the same FastAPI process. No Node installation is required.
 
 - Today: selectable time window, company filter, priority cards, collapsed routine filings, original filing dialog and contextual research navigation.
-- Research: any NSE ticker, suggested questions, cited answers, expandable source excerpts, and explicit partial/error/loading states.
-- Settings: persistent watchlist, price/volume thresholds, and Important / Briefing only / Custom alert modes. Preferences affect interruptions; all filings remain accessible.
+- Research: any NSE ticker, user-written questions, cited answers, expandable source excerpts, and explicit partial/error/loading states.
+- Settings: persistent watchlist, price/volume thresholds, and Important / Briefing only / Custom alert modes. Selected announcement categories filter Today and control announcement alerts.
 - Network: persistent contacts with career history, education and major, expertise, sectors, introductions and last-contact dates. Search and contextual recommendations explain their recorded evidence. Optional synthetic demo contacts are visibly labeled.
 - Responsive sidebar becomes bottom navigation on narrow screens. Google Fonts enhance typography; local serif/sans-serif fallbacks remain available.
 
@@ -100,4 +100,4 @@ Research and watchlist inputs suggest symbols and company names as you type. `/c
 
 Today is the Push feed: threshold-triggered alerts, a windowed digest (24 hours by default), named contact hooks, and collapsed routine filings. Quarterly result cards expose source-checked metrics and QoQ/YoY; unavailable figures stay blank. Management cards use disclosed bios and possible shared affiliations, without inferring a personal connection.
 
-Preferences owns the watchlist, selected announcement types, price/volume thresholds, persistent digest defaults, network deletion controls and source status. GET/PUT /settings/digest saves default_days (1, 7 or 30) and ungroup_filings. DELETE /network/contacts removes all locally saved contacts; the UI requires explicit confirmation. New threshold alerts retain the triggering rule snapshot; older alerts may lack it. Selected categories control announcement alerts; all filings remain in the digest regardless of alert selection.
+Preferences owns the watchlist, selected announcement types, price/volume thresholds, persistent digest defaults, network deletion controls and source status. GET/PUT /settings/digest saves default_days (1, 7 or 30) and ungroup_filings. DELETE /network/contacts removes all locally saved contacts; the UI requires explicit confirmation. New threshold alerts retain the triggering rule snapshot; older alerts may lack it. Selected categories filter the digest and announcement alerts, including previously triggered announcement alerts.

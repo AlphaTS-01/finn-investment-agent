@@ -126,7 +126,6 @@ $('close-dialog').onclick=()=>$('event-dialog').close();
 document.addEventListener('click',async e=>{
   const card=e.target.closest('[data-event]');if(card)openEvent(card.dataset.event);
   const ticker=e.target.closest('[data-research-ticker]');if(ticker)openResearch(ticker.dataset.researchTicker);
-  const prompt=e.target.closest('[data-question]');if(prompt){$('question').value=prompt.dataset.question;$('ticker').focus();}
   const remove=e.target.closest('[data-remove]');if(remove){remove.disabled=true;try{const result=await api('/portfolio/'+encodeURIComponent(remove.dataset.remove),'DELETE');state.tickers=result.tickers;renderPortfolio();loadFeed();toast('Company removed from your watchlist.');}catch(err){toast(err.message);remove.disabled=false;}}
 });
 $('window').onchange=()=>loadFeed();$('company-filter').onchange=renderFeed;$('show-all-filings').onchange=renderFeed;$('refresh-feed').onclick=()=>{loadFeed(true);loadAlerts();};
@@ -164,7 +163,7 @@ $('add-form').onsubmit=async e=>{
 $('category-options').innerHTML=categories.map(c=>`<label><input type="checkbox" name="category" value="${esc(c)}">${esc(label(c))}</label>`).join('');
 $('rules-form').onsubmit=async e=>{
   e.preventDefault();const button=e.target.querySelector('button');button.disabled=true;
-  try{await api('/settings/alerts','PUT',{mode:$('alert-mode').value,price_pct:Number($('price-threshold').value),volume_ratio:Number($('volume-threshold').value),categories:[...document.querySelectorAll('[name=category]:checked')].map(x=>x.value)});toast('Alert preferences saved.');}
+  try{await api('/settings/alerts','PUT',{mode:$('alert-mode').value,price_pct:Number($('price-threshold').value),volume_ratio:Number($('volume-threshold').value),categories:[...document.querySelectorAll('[name=category]:checked')].map(x=>x.value)});await Promise.all([loadFeed(),loadAlerts()]);toast('Preferences saved.');}
   catch(err){toast(err.message);}finally{button.disabled=false;}
 };
 async function init(){
@@ -173,9 +172,8 @@ async function init(){
   try{const d=await api('/portfolio');state.tickers=d.tickers;renderPortfolio();}catch(err){toast(err.message);}
   try{const d=await api('/settings/digest');$('default-window').value=String(d.default_days);$('window').value=String(d.default_days);$('show-all-filings').checked=d.ungroup_filings;}catch(err){toast(err.message);}finally{document.querySelectorAll('#digest-form input,#digest-form select,#digest-form button').forEach(e=>e.disabled=false);}
   loadFeed();loadAlerts();
-  try{const r=await api('/settings/alerts');$('alert-mode').value=r.mode==='briefing_only'?'briefing_only':'custom';$('custom-categories').hidden=$('alert-mode').value==='briefing_only';$('price-threshold').value=r.price_pct;$('volume-threshold').value=r.volume_ratio;document.querySelectorAll('[name=category]').forEach(el=>el.checked=r.categories.includes(el.value));}catch(err){toast(err.message);}finally{document.querySelectorAll('#rules-form input,#rules-form select,#rules-form button').forEach(e=>e.disabled=false);}
+  try{const r=await api('/settings/alerts');$('alert-mode').value=r.mode==='briefing_only'?'briefing_only':'custom';$('price-threshold').value=r.price_pct;$('volume-threshold').value=r.volume_ratio;document.querySelectorAll('[name=category]').forEach(el=>el.checked=r.categories.includes(el.value));}catch(err){toast(err.message);}finally{document.querySelectorAll('#rules-form input,#rules-form select,#rules-form button').forEach(e=>e.disabled=false);}
 }
-$('alert-mode').onchange=()=>{$('custom-categories').hidden=$('alert-mode').value==='briefing_only';};
 init();
 
 async function loadMonitors(){

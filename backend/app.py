@@ -95,7 +95,9 @@ def briefing(days: Annotated[int, Query(ge=1, le=90)] = 1, refresh: bool = False
         return push.announcements(ticker, days, refresh=refresh)
     with ThreadPoolExecutor(max_workers=2) as pool:
         results = list(pool.map(company_feed, storage.portfolio()))
-    items = [item for result in results for item in result['items']]
+    selected_categories = set(alert_rules()['categories'])
+    items = [item for result in results for item in result['items']
+             if item['category'] in selected_categories]
     items.sort(key=lambda e: (e['priority'], e['published_at']), reverse=True)
     groups = events.grouped(items)
     for item in [member for group in groups for member in [group,*group.get('related_filings',[])]]:
@@ -138,7 +140,10 @@ def update_rules(body: AlertRules):
 
 @app.get('/alerts')
 def alerts():
-    return {'items': [{**a,'network_matches':network.matches(ticker=a.get('ticker',''),query=a.get('subject',''),category=a.get('category',''))[:1]} for a in storage.alerts()]}
+    selected_categories = set(alert_rules()['categories'])
+    visible = [a for a in storage.alerts()
+               if a.get('type') != 'announcement' or a.get('category') in selected_categories]
+    return {'items': [{**a,'network_matches':network.matches(ticker=a.get('ticker',''),query=a.get('subject',''),category=a.get('category',''))[:1]} for a in visible]}
 
 class DigestPreferences(BaseModel):
     default_days: Literal[1,7,30] = 1

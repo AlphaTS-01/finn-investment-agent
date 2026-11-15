@@ -15,6 +15,20 @@ def test_digest_defaults_persist_and_validate():
     assert c.get('/settings/digest').json()['default_days']==7
     assert c.put('/settings/digest',json={'default_days':90}).status_code==422
 
+def test_digest_filters_selected_types_in_both_views(monkeypatch):
+    monkeypatch.setattr(storage, 'portfolio', lambda: ['TCS'])
+    items = [push.normalize({'NEWSSUB': subject, 'NEWS_DT': '2026-11-15'}, 'TCS', 'BSE')
+             for subject in ['Financial Results', 'Earnings Call Transcript']]
+    monkeypatch.setattr(push, 'cached_window', lambda *a: {'status': 'ok', 'ticker': 'TCS', 'items': items})
+    client = TestClient(app)
+    for mode in ['custom', 'briefing_only']:
+        storage.save_setting('rules', {'mode': mode, 'categories': ['results']})
+        result = client.get('/briefing').json()
+        assert [item['category'] for item in result['items']] == ['results']
+        assert all(group['category'] == 'results' for group in result['groups'])
+    storage.save_setting('rules', {'categories': []})
+    assert client.get('/briefing').json()['items'] == []
+
 def test_delete_contacts_clears_local_network():
     network.save(network.Contact(name='QA'))
     assert TestClient(app).delete('/network/contacts').status_code==200
