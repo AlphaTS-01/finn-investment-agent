@@ -1,0 +1,16 @@
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.sqlite*
+*.db
+*.pdf
+*.zip
+dimmer_v2.0.1/
+submission-private/
+.venv/
+data/
+__pycache__/
+.pytest_cache/
+*.log
