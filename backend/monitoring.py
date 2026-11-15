@@ -8,9 +8,13 @@ from . import storage, providers as p
 
 def db():
     conn=storage.connect()
-    conn.execute('CREATE TABLE IF NOT EXISTS filings (id TEXT PRIMARY KEY,ticker TEXT,value TEXT,first_seen TEXT)')
-    conn.execute('CREATE TABLE IF NOT EXISTS jobs (id TEXT PRIMARY KEY,kind TEXT,payload TEXT,state TEXT,attempts INTEGER,next_run REAL,error TEXT)')
-    conn.execute('CREATE TABLE IF NOT EXISTS monitors (id TEXT PRIMARY KEY,ticker TEXT,question TEXT,created TEXT)')
+    try:
+        conn.execute('CREATE TABLE IF NOT EXISTS filings (id TEXT PRIMARY KEY,ticker TEXT,value TEXT,first_seen TEXT)')
+        conn.execute('CREATE TABLE IF NOT EXISTS jobs (id TEXT PRIMARY KEY,kind TEXT,payload TEXT,state TEXT,attempts INTEGER,next_run REAL,error TEXT)')
+        conn.execute('CREATE TABLE IF NOT EXISTS monitors (id TEXT PRIMARY KEY,ticker TEXT,question TEXT,created TEXT)')
+    except BaseException:
+        conn.close()
+        raise
     return conn
 
 def monitors():

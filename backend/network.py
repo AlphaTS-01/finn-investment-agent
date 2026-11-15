@@ -89,7 +89,11 @@ class Contact(BaseModel):
 
 def db():
     conn = storage.connect()
-    conn.execute('CREATE TABLE IF NOT EXISTS contacts (id TEXT PRIMARY KEY, value TEXT NOT NULL, updated TEXT)')
+    try:
+        conn.execute('CREATE TABLE IF NOT EXISTS contacts (id TEXT PRIMARY KEY, value TEXT NOT NULL, updated TEXT)')
+    except BaseException:
+        conn.close()
+        raise
     return conn
 
 def contacts():

@@ -2,6 +2,7 @@
 from concurrent.futures import ThreadPoolExecutor
 from contextlib import asynccontextmanager
 import threading
+import logging
 from typing import Annotated, Literal
 
 from fastapi import FastAPI, Query, Request
@@ -36,6 +37,11 @@ def provider_error(request: Request, exc):
 @app.exception_handler(ValueError)
 def invalid_input(request: Request, exc):
     return JSONResponse(status_code=422, content={'detail': str(exc)})
+
+@app.exception_handler(Exception)
+def unexpected_error(request: Request, exc):
+    logging.getLogger(__name__).error('Unhandled API error', exc_info=(type(exc), exc, exc.__traceback__))
+    return JSONResponse(status_code=500, content={'detail': 'The server could not complete this request. Please try again shortly.'})
 
 @app.get('/health')
 def health():

@@ -19,7 +19,9 @@ function renderWatchlist(){
 $('watchlist-more').onclick=()=>{watchlistExpanded=!watchlistExpanded;renderWatchlist();};
 async function api(path, method='GET', body) {
   const response=await fetch(path,{method,headers:body?{'Content-Type':'application/json'}:{},body:body?JSON.stringify(body):undefined});
-  const data=await response.json();
+  let data;
+  try{data=await response.json();}
+  catch{throw Error(response.ok?'The server returned an unreadable response. Please try again.':`The server could not complete this request (${response.status}). Please try again shortly.`);}
   if(!response.ok) throw Error(typeof data.detail==='string'?data.detail:Array.isArray(data.detail)?data.detail.map(x=>x.msg).join('; '):'The request could not be completed. Please try again.');
   return data;
 }

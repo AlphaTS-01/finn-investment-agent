@@ -13,12 +13,25 @@ DEFAULT_PORTFOLIO = ['TCS', 'INFY', 'RELIANCE', 'HDFCBANK', 'ICICIBANK', 'ITC',
                      'HINDUNILVR', 'LT', 'SUNPHARMA', 'MARUTI', 'TITAN',
                      'ULTRACEMCO', 'TATASTEEL', 'BEL', 'PIDILITIND']
 
+class ClosingConnection(sqlite3.Connection):
+    """Commit/rollback on context exit, then release the file handles immediately."""
+    def __exit__(self, *args):
+        try:
+            return super().__exit__(*args)
+        finally:
+            self.close()
+
+
 def connect():
-    db = sqlite3.connect(DB, timeout=20)
-    db.execute('PRAGMA journal_mode=WAL')
-    db.execute('CREATE TABLE IF NOT EXISTS cache (key TEXT PRIMARY KEY, value TEXT, saved REAL)')
-    db.execute('CREATE TABLE IF NOT EXISTS settings (key TEXT PRIMARY KEY, value TEXT)')
-    db.execute('CREATE TABLE IF NOT EXISTS alerts (id TEXT PRIMARY KEY, value TEXT, created REAL)')
+    db = sqlite3.connect(DB, timeout=20, factory=ClosingConnection)
+    try:
+        db.execute('PRAGMA journal_mode=WAL')
+        db.execute('CREATE TABLE IF NOT EXISTS cache (key TEXT PRIMARY KEY, value TEXT, saved REAL)')
+        db.execute('CREATE TABLE IF NOT EXISTS settings (key TEXT PRIMARY KEY, value TEXT)')
+        db.execute('CREATE TABLE IF NOT EXISTS alerts (id TEXT PRIMARY KEY, value TEXT, created REAL)')
+    except BaseException:
+        db.close()
+        raise
     return db
 
 def get(key, ttl=None):
