@@ -2,7 +2,7 @@
 
 Mobile-first web application for on-demand company research, primary-document caching, portfolio announcements, EOD alerts and professional network context.
 
-Read [the submission writeup](SUBMISSION.md) for product decisions, architecture, privacy and limitations. [The covering email](COVERING_EMAIL.md) is a draft with deployment and build-history links pending.
+Read [the submission writeup](SUBMISSION.md) for product decisions, architecture, privacy and limitations.
 
 ## Run
 
