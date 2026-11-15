@@ -102,7 +102,7 @@ async function loadAlerts(){try{const data=await api('/alerts');const alerts=dat
 function openResearch(ticker,context=null){
   $('ticker').value=ticker;state.context=context;
   $('event-context').hidden=!context;
-  if(context){$('event-context').textContent='From your briefing: '+context.subject;$('question').value=`What context do the annual reports and earnings calls provide for this filing: ${context.subject}? Explain any evidence gaps.`;}
+  if(context){$('event-context').textContent='From your briefing: '+context.subject;$('question').value='';}
   location.hash='research';route();$('question').focus();
 }
 function analysisMarkup(d){
